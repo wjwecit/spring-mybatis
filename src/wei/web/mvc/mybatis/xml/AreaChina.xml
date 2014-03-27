@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper  
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wei.web.mvc.mybatis.mapper.AreaChinaMapper">
+
+	<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>
+	<cache type="org.mybatis.caches.ehcache.EhcacheCache">
+		<property name="timeToIdleSeconds" value="3600" /><!--1 hour -->
+		<property name="timeToLiveSeconds" value="3600" /><!--1 hour -->
+		<property name="maxEntriesLocalHeap" value="1000" />
+		<property name="maxEntriesLocalDisk" value="10000000" />
+		<property name="memoryStoreEvictionPolicy" value="LRU" />
+	</cache>
+
+	<select id="selectAreaChina" parameterType="int" resultType="AreaChina"
+		useCache="true">
+		select *
+		from AreaChina where areaCode = #{areaCode}
+	</select>
+
+	<select id="selectAll" resultType="AreaChina">
+		select * from AreaChina
+	</select>
+
+	<resultMap id="areaMap" type="hashmap">
+		<id property="id" column="areaCode" />
+		<result property="name" column="username" />
+		<result property="password" column="password" />
+	</resultMap>
+
+	<select id="selectSix" parameterType="int" resultType="hashmap">
+		<![CDATA[
+			select * from AreaChina where areaCode >= #{areaCode} limit 6
+		]]>
+	</select>
+	<select id="selectFive" parameterType="int" resultType="AreaChina">
+		<![CDATA[
+			select * from AreaChina where areaCode >= #{areaCode} limit 5
+		]]>
+	</select>
+	
+	<select id="select10"  resultMap="areaMap">
+		<![CDATA[
+			select areaCode,areaName from AreaChina limit 5
+		]]>
+	</select>
+
+	<insert id="insertAreaChina" parameterType="AreaChina"
+		useGeneratedKeys="false" keyProperty="areaCode">
+		insert into
+		AreaChina(areaCode,areaName,areaCodeDeprecated)
+		values(#{areaCode},#{areaName},#{areaCodeDeprecated})
+	</insert>
+
+	<update id="updateAreaChina" parameterType="AreaChina">
+		<![CDATA[
+			update AreaChina set
+			areaCode =
+			#{areaCode},areaName = #{areaName},areaCodeDeprecated =
+			#{areaCodeDeprecated}
+			where areaCode = #{areaCode}
+		]]>
+	</update>
+
+	<delete id="deleteAreaChina" parameterType="int">
+		delete from AreaChina
+		where areaCode = #{areaCode}
+	</delete>
+
+</mapper>  
