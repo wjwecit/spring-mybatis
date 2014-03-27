@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.0.xsd
+	http://mybatis.org/schema/mybatis-spring 
+	http://mybatis.org/schema/mybatis-spring.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+	<!-- 数据源 dbcp-->
+	<bean id="dataSourceMysql2" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
+		<property name="url" value="jdbc:mysql://localhost:3306/test" />
+		<property name="username" value="root" />
+		<property name="password" value="123" />
+		<property name="maxActive" value="2" />
+		<property name="maxIdle" value="2" />
+		<property name="maxWait" value="3000" />
+	</bean>
+	<!-- 数据源c3p0 -->
+	<bean id="dataSourceMysql" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl"
+			value="jdbc:mysql://localhost:3306/test?useUnicode=true&amp;characterEncoding=UTF-8&amp;autoReconnect=true&amp;failOverReadOnly=false" />
+		<property name="user" value="root" />
+		<property name="password" value="123" />
+		<property name="initialPoolSize" value="1" />
+		<property name="maxPoolSize" value="10" />
+		<property name="minPoolSize" value="1" />
+		<property name="acquireIncrement" value="3" />
+		<property name="maxIdleTime" value="30" />
+		<property name="maxIdleTimeExcessConnections" value="1200" />
+		<property name="maxConnectionAge" value="27000" />
+		<property name="maxStatements" value="500" />
+		<property name="maxStatementsPerConnection" value="50" />
+		<property name="numHelperThreads" value="5" />
+		<property name="preferredTestQuery" value="SELECT 1" />
+	</bean>
+	
+	<!-- 事务管理支持 -->
+	<bean id="txManagerMysql" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSourceMysql" />
+		<qualifier value="txMysql"/>
+	</bean>
+	
+	<!-- 注解式事务 -->
+	<tx:annotation-driven transaction-manager="txManager"/>
+	
+	<!-- 事务模板 -->
+	<bean id="sharedTransactionTemplateMysql" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="timeout" value="1200" />
+		<property name="transactionManager" ref="txManagerMysql" />
+	</bean>	
+	
+	<!-- Jdbc模板 -->
+	<bean id="jdbcTemplateMysql" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="dataSourceMysql"/>
+	</bean>
+	
+	<!-- 视图解释 -->
+	<bean id="viewResolver"	class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass"
+			value="org.springframework.web.servlet.view.JstlView" />
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	
+	<!-- 扫描注解方式的bean -->
+	<context:component-scan base-package="wei.web.mvc.*" />
+	
+	<!-- 注解映射支持 -->
+	<mvc:annotation-driven />
+	
+	<!-- 自定义拦截器 -->
+	<mvc:interceptors>
+		<bean id="logInterceptor" class="wei.web.mvc.interceptor.LoggerInterceptor"/>
+	</mvc:interceptors>
+	
+	
+	<!-- mybatis sessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:Mytatis-Configuration.xml"/>
+	    <property name="dataSource" ref="dataSourceMysql" />
+	</bean>
+
+	 <!--创建数据映射器，数据映射器必须为接口-->
+	<mybatis:scan base-package="wei.web.mvc.mybatis.mapper" />
+	
+	<!--定义异常处理页面-->
+    <bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <property name="exceptionMappings">
+            <props>
+                <prop key="java.sql.SQLException">exception</prop>
+                <prop key="java.io.IOException">exception</prop>
+                <prop key="java.lang.RuntimeException">exception</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- XML形式AOP拦截 -->
+    <bean id="profile" class="wei.web.mvc.aop.WeiAopTest"/>    
+    <aop:config>
+    	<aop:aspect ref="profile">
+    		<aop:pointcut id="method1" expression="execution(* wei.web.mvc.mybatis.mapper.*.*(..))"/>
+    		<aop:around pointcut-ref="method1" method="profile"/>
+    	</aop:aspect>
+    </aop:config>
+    
+    <!-- 开启注解形式的AOP拦截处理 -->
+    <aop:aspectj-autoproxy/>
+    
+</beans>
