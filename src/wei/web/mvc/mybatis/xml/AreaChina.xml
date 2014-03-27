@@ -5,7 +5,8 @@
 <mapper namespace="wei.web.mvc.mybatis.mapper.AreaChinaMapper">
 
 	<cache type="org.mybatis.caches.ehcache.LoggingEhcache"/>
-	<cache type="org.mybatis.caches.ehcache.EhcacheCache">
+<!-- 	<cache type="org.mybatis.caches.ehcache.EhcacheCache"> -->
+	<cache type="org.mybatis.caches.ehcache.LoggingEhcache">
 		<property name="timeToIdleSeconds" value="3600" /><!--1 hour -->
 		<property name="timeToLiveSeconds" value="3600" /><!--1 hour -->
 		<property name="maxEntriesLocalHeap" value="1000" />

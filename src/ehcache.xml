@@ -5,7 +5,7 @@
 		overflowToDisk="false" />
 	<cache name="cache1" 
 		maxElementsInMemory="3000" 
-		eternal="true"
+		eternal="false"
         timeToIdleSeconds="30"
         timeToLiveSeconds="60"
 		overflowToDisk="false" />

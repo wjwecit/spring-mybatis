@@ -81,7 +81,7 @@ public class MyBatisController {
 		areachina.setAreaName(new Random().nextInt(100000)+"");
 		acMapper.updateAreaChina(areachina);
 		if(code!=0){
-			throw new RuntimeException("test");
+			//throw new RuntimeException("test");
 		}
 		areachina=acMapper.selectAreaChina(code);
 		model.addAttribute("acInfo",areachina.toString());

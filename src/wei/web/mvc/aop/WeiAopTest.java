@@ -3,6 +3,7 @@
  */
 package wei.web.mvc.aop;
 
+import org.apache.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.springframework.util.StopWatch;
 
@@ -12,6 +13,7 @@ import org.springframework.util.StopWatch;
  */
 public class WeiAopTest {
 
+	private static Logger log=Logger.getLogger(WeiAopTest.class);
 	public Object profile(ProceedingJoinPoint call)
 			throws Throwable {
 		StopWatch clock = new StopWatch("Profiling for '"+call);
@@ -20,7 +22,7 @@ public class WeiAopTest {
 			return call.proceed();
 		} finally {
 			clock.stop();
-			System.out.println(clock.prettyPrint());
+			log.info(clock.prettyPrint());
 		}
 	}
 }
